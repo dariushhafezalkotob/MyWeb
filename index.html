@@ -221,6 +221,8 @@
         } else {
           resultText.textContent = '✅ ثبت‌نام موفقیت‌آمیز. لطفاً ایمیل خود را تایید کنید.'
           console.log('User created:', signUpData)
+          window.location.href = 'chatClass.html';
+
         }
       })
 
@@ -239,6 +241,8 @@
       } else {
         resultText.textContent = '✅ خوش‌آمدید: ' + data.user.email
         console.log(data)
+        window.location.href = 'chatClass.html';
+
       }
     })
   </script>
