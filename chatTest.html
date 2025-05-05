@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>چت با معلم ریاضی</title>
+  <style>
+    body {
+      font-family: "Vazirmatn", sans-serif;
+      background-color: #f1f1f1;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      overflow-y: auto;
+    }
+
+    .message-wrapper {
+      display: flex;
+      margin: 5px;
+    }
+
+    .message {
+      max-width: 75%;
+      padding: 10px 15px;
+      border-radius: 12px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      direction: rtl;
+    }
+
+    .user-wrapper {
+      justify-content: flex-start; /* User = left side */
+    }
+
+    .assistant-wrapper {
+      justify-content: flex-end; /* Assistant = right side */
+    }
+
+    .user .message {
+      background: #0084ff;
+      color: white;
+      border-bottom-right-radius: 0;
+      text-align: right;
+    }
+
+    .assistant .message {
+      background: #e0e0e0;
+      color: #000;
+      border-bottom-left-radius: 0;
+      text-align: right;
+    }
+
+    .input-area {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid #ccc;
+      background: white;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      outline: none;
+    }
+
+    button {
+      margin-right: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      background: #0084ff;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #006fd6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="chat-container" id="chat"></div>
+
+  <div class="input-area">
+    <input type="text" id="messageInput" placeholder="پیام خود را بنویسید..." />
+    <button onclick="sendMessage()">ارسال</button>
+  </div>
+
+  <script>
+    const chatContainer = document.getElementById("chat");
+    const messageInput = document.getElementById("messageInput");
+
+    // ✅ Replace this with your actual working Render.com URL:
+    const API_URL = "https://openai-proxytest-1.onrender.com/chat";
+
+    const messages = [
+      { role: "system", content: "تو معلم ریاضی هستی . بسیار مودبانه و مهربانانه و بسیار ساده به زبان کودکانه توضیح میدهی و فرمولهای ریاضی رو ساده مینویسی. برای توضیح هر فرمول حتما اول یک مثال در زندگی روزمره میگی تا بفهمه که این مبحث در کدام بخش زندگی روزمره کاربرد داره .بعد مرحله به مرحله میری جلو و از یوزر میخواهی که بگه فهمیده و مرحله به مرحله باهات همراهی کنه و بفهمی اشکالات جزعی و پایه یوزر رو بفهمی و بهش بگی و کمک کنی " }
+    ];
+
+    function appendMessage(text, sender) {
+      const wrapper = document.createElement("div");
+      wrapper.className = `message-wrapper ${sender}-wrapper ${sender}`;
+
+      const msg = document.createElement("div");
+      msg.className = "message";
+      msg.textContent = text;
+
+      wrapper.appendChild(msg);
+      chatContainer.appendChild(wrapper);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const content = messageInput.value.trim();
+      if (!content) return;
+
+      appendMessage(content, "user");
+      messages.push({ role: "user", content });
+      messageInput.value = "";
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ messages })
+        });
+
+        const data = await res.json();
+        let reply = "پاسخی دریافت نشد.";
+
+        if (data.choices && data.choices[0]?.message?.content) {
+          reply = data.choices[0].message.content;
+        } else if (data.message) {
+          reply = data.message;
+        }
+
+        appendMessage(reply, "assistant");
+        messages.push({ role: "assistant", content: reply });
+
+      } catch (err) {
+        console.error(err);
+        appendMessage("خطا در ارتباط با سرور.", "assistant");
+      }
+    }
+
+    messageInput.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>
