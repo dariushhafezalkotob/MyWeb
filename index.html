@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ورود / ثبت‌نام</title>
+  <style>
+    body {
+
+          font-family: 'Vazirmatn', sans-serif;
+        
+
+      background: linear-gradient(to right, #e0eafc, #cfdef3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .auth-container {
+      background: #fff;
+      padding: 2rem 2.5rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      width: 320px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+      color: #333;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 12px;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #357ab8;
+    }
+
+    .toggle-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .toggle-buttons button {
+      width: 48%;
+      background-color: #e1e5ea;
+      color: #333;
+    }
+
+    #result {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: #d9534f;
+    }
+
+    form {
+      display: none;
+    }
+
+    /* Farsi font */
+    @font-face {
+        <link href="https://fonts.googleapis.com/css2?family=Vazirmatn&display=swap" rel="stylesheet">
+
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <h2>🔐 ورود / ثبت‌نام</h2>
+
+    <div class="toggle-buttons">
+      <button onclick="showForm('signup')">ثبت‌نام</button>
+      <button onclick="showForm('login')">ورود</button>
+    </div>
+
+    <!-- Sign Up Form -->
+    <form id="signup-form" style="display: none; direction: rtl; max-width: 400px; font-family: Vazir, sans-serif;">
+      <input type="text" id="first-name" placeholder="نام" required style="width: 100%; padding: 10px; margin-bottom: 10px;" />
+
+      <input type="text" id="last-name" placeholder="نام خانوادگی" required style="width: 100%; padding: 10px; margin-bottom: 10px;" />
+
+      <input type="email" id="signup-email" placeholder="ایمیل" required style="width: 100%; padding: 10px; margin-bottom: 10px;" />
+
+      <input type="password" id="signup-password" placeholder="رمز عبور" required style="width: 100%; padding: 10px; margin-bottom: 10px;" />
+
+      <input type="number" id="child-age" placeholder="سن کودک" min="1" max="18" required style="width: 100%; padding: 10px; margin-bottom: 10px;" />
+
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+        <span style="margin-left: 10px;">پایه تحصیلی</span>
+        <select id="child-grade" required style="flex: 1; padding: 10px;">
+          <option value="">انتخاب پایه</option>
+          <option value="اول">اول</option>
+          <option value="دوم">دوم</option>
+          <option value="سوم">سوم</option>
+          <option value="چهارم">چهارم</option>
+          <option value="پنجم">پنجم</option>
+          <option value="ششم">ششم</option>
+          <option value="هفتم">هفتم</option>
+          <option value="هشتم">هشتم</option>
+          <option value="نهم">نهم</option>
+        </select>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <span style="margin-left: 10px;">جنسیت کودک</span>
+        <select id="child-gender" required style="flex: 1; padding: 10px;">
+          <option value="">انتخاب جنسیت</option>
+          <option value="دختر">دختر</option>
+          <option value="پسر">پسر</option>
+        </select>
+      </div>
+
+      <button type="submit" style="width: 100%; padding: 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
+        ثبت‌نام
+      </button>
+    </form>
+
+
+
+
+    <!-- Login Form -->
+    <form id="login-form">
+      <input type="email" id="login-email" placeholder="ایمیل" required />
+      <input type="password" id="login-password" placeholder="رمز عبور" required />
+      <button type="submit">ورود</button>
+    </form>
+
+    <p id="result"></p>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+    const SUPABASE_URL = 'https://rcyvaqzaezuztckfpwhl.supabase.co' // replace with your Supabase URL
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjeXZhcXphZXp1enRja2Zwd2hsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYzNjUxNTcsImV4cCI6MjA2MTk0MTE1N30.9592SdIs08dYGADgcFiNG9VVmdWniD9TadVw23LSF_M' // replace with your Supabase anon key
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+    const signupForm = document.getElementById('signup-form')
+    const loginForm = document.getElementById('login-form')
+    const resultText = document.getElementById('result')
+
+    window.showForm = function(type) {
+      signupForm.style.display = type === 'signup' ? 'block' : 'none'
+      loginForm.style.display = type === 'login' ? 'block' : 'none'
+      resultText.textContent = ''
+    }
+
+    // form of signup//
+      
+      signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault()
+
+        const email = document.getElementById('signup-email').value
+        const password = document.getElementById('signup-password').value
+        const firstName = document.getElementById('first-name').value
+        const lastName = document.getElementById('last-name').value
+        const age = document.getElementById('child-age').value
+        const grade = document.getElementById('child-grade').value
+        const gender = document.getElementById('child-gender').value
+
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              name: firstName,
+              surname: lastName,
+              child_age: age,
+              child_grade: grade,
+              child_gender: gender
+            }
+          }
+        })
+
+        if (signUpError) {
+          resultText.textContent = '❌ ثبت‌نام ناموفق: ' + signUpError.message
+          return
+        }
+
+        const userId = signUpData.user?.id
+        if (!userId) {
+          resultText.textContent = '❌ خطا در دریافت اطلاعات کاربر.'
+          return
+        }
+
+        const { error: insertError } = await supabase.from('profiles').insert({
+          id: userId,
+          email,
+          name: firstName,
+          surname: lastName,
+          child_age: parseInt(age),
+          child_grade: grade,
+          child_gender: gender
+        })
+
+        if (insertError) {
+          resultText.textContent = '❌ خطا در ذخیره‌سازی پروفایل: ' + insertError.message
+        } else {
+          resultText.textContent = '✅ ثبت‌نام موفقیت‌آمیز. لطفاً ایمیل خود را تایید کنید.'
+          console.log('User created:', signUpData)
+        }
+      })
+
+
+
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const email = document.getElementById('login-email').value
+      const password = document.getElementById('login-password').value
+
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+
+      if (error) {
+        resultText.textContent = '❌ ورود ناموفق: ' + error.message
+      } else {
+        resultText.textContent = '✅ خوش‌آمدید: ' + data.user.email
+        console.log(data)
+      }
+    })
+  </script>
+</body>
+</html>
